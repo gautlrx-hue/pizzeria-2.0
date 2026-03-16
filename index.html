@@ -1,0 +1,2249 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pizz'Snack&Bowl — Artisanal · Frais · Généreux · Fleury-d'Aude</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,400&display=swap" rel="stylesheet">
+  <style>
+    /* =============================================
+       RESET & CSS VARIABLES
+    ============================================= */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --rouge:      #D62828;
+      --rouge-dark: #9E1A1A;
+      --or:         #F7B731;
+      --vert:       #2D6A4F;
+      --noir:       #1A1A1A;
+      --noir-deep:  #0D0D0D;
+      --gris:       #232323;
+      --creme:      #F5F0E8;
+      --creme-dim:  rgba(245,240,232,0.65);
+
+      --bg-dark:    var(--noir);
+      --bg-light:   var(--creme);
+      --bg-accent:  var(--rouge);
+      --text-on-dark:  var(--creme);
+      --text-on-light: #1a1a1a;
+
+      --font-display: 'Oswald', sans-serif;
+      --font-body:    'DM Sans', sans-serif;
+
+      --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    html { scroll-behavior: auto; }
+
+    body {
+      background: var(--noir);
+      color: var(--creme);
+      font-family: var(--font-body);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    img { display: block; max-width: 100%; }
+    a   { color: inherit; text-decoration: none; }
+
+    /* Pre-hide scroll-animated elements */
+    [data-anim] { opacity: 0; }
+
+    /* Hero-specific hidden elements */
+    .hero-label,
+    .hero-title .line,
+    .hero-sub,
+    .hero-cta,
+    .hero-scroll { opacity: 0; }
+
+    /* =============================================
+       CUSTOM CURSOR
+    ============================================= */
+    .cursor-dot {
+      position: fixed; top: 0; left: 0;
+      width: 8px; height: 8px;
+      background: var(--or);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s, height 0.2s, background 0.2s;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed; top: 0; left: 0;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(247,183,49,0.5);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+    }
+    .cursor-dot.grow { width: 48px; height: 48px; background: var(--rouge); }
+
+    /* =============================================
+       NAV
+    ============================================= */
+    .nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.8rem 4vw;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background 0.5s, backdrop-filter 0.5s, padding 0.3s;
+    }
+    .nav.scrolled {
+      padding: 1.2rem 4vw;
+      background: rgba(13, 13, 13, 0.93);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(245,240,232,0.06);
+    }
+    .nav-logo {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .nav-logo em { color: var(--or); font-style: normal; }
+    .nav-links {
+      display: flex; align-items: center; gap: 2rem;
+    }
+    .nav-links a {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--creme-dim);
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--or); }
+    .nav-btn {
+      background: var(--rouge);
+      color: var(--creme) !important;
+      padding: 0.55rem 1.4rem;
+      font-weight: 600 !important;
+      letter-spacing: 0.08em !important;
+      transition: background 0.2s !important;
+    }
+    .nav-btn:hover { background: var(--rouge-dark) !important; color: var(--creme) !important; }
+
+    /* =============================================
+       HERO
+    ============================================= */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: flex-end;
+      padding: 0 5vw 7rem;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-image: url('pizz-snack-bowl-assets/media/images/pizza/pizza-bacon-01.jpg');
+      background-size: cover;
+      background-position: center 40%;
+      transform-origin: center;
+      /* Fallback si WebGL indisponible */
+    }
+
+
+    .hero-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        160deg,
+        rgba(13,13,13,0.15) 0%,
+        rgba(13,13,13,0.25) 35%,
+        rgba(13,13,13,0.72) 68%,
+        rgba(13,13,13,0.97) 100%
+      );
+    }
+
+    /* Grain texture */
+    .hero-grain {
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.04;
+      pointer-events: none;
+    }
+
+    .hero-inner { position: relative; z-index: 2; }
+
+    .hero-label {
+      font-family: var(--font-body);
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--or);
+      margin-bottom: 1.5rem;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .hero-label::before {
+      content: '';
+      width: 32px; height: 1px;
+      background: var(--or);
+    }
+
+    .hero-title {
+      font-family: var(--font-display);
+      font-size: clamp(5.5rem, 13vw, 14rem);
+      font-weight: 700;
+      line-height: 0.88;
+      text-transform: uppercase;
+      letter-spacing: -0.025em;
+      margin-bottom: 2.5rem;
+      overflow: hidden;
+    }
+    .hero-title .line {
+      display: block;
+      transform: translateY(110px);
+    }
+    .hero-title .line.accent { color: var(--or); }
+
+    .hero-sub {
+      font-family: var(--font-body);
+      font-size: clamp(1rem, 1.8vw, 1.35rem);
+      font-weight: 300;
+      letter-spacing: 0.18em;
+      color: var(--creme-dim);
+      margin-bottom: 3rem;
+    }
+
+    .hero-cta {
+      display: inline-flex; align-items: center; gap: 1rem;
+      background: var(--rouge);
+      color: var(--creme);
+      font-family: var(--font-display);
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 1.1rem 2.8rem;
+      border: none; cursor: pointer;
+      transition: background 0.25s, gap 0.25s;
+    }
+    .hero-cta:hover { background: var(--rouge-dark); gap: 1.4rem; }
+    .hero-cta-arrow { font-size: 1.1rem; }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2.5rem; right: 4vw;
+      display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+      z-index: 2;
+    }
+    .hero-scroll-line {
+      width: 1px; height: 56px;
+      background: linear-gradient(to bottom, var(--or), transparent);
+      animation: pulse-line 2s ease-in-out infinite;
+    }
+    @keyframes pulse-line {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50%       { opacity: 1;   transform: scaleY(0.75); }
+    }
+    .hero-scroll-txt {
+      font-size: 0.6rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.4);
+      writing-mode: vertical-rl;
+    }
+
+    /* =============================================
+       MARQUEE
+    ============================================= */
+    .marquee-band {
+      background: var(--rouge);
+      padding: 0.9rem 0;
+      overflow: hidden;
+    }
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marquee 22s linear infinite;
+      will-change: transform;
+    }
+    .marquee-item {
+      font-family: var(--font-display);
+      font-size: clamp(1.6rem, 2.8vw, 2.4rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--or);
+      white-space: nowrap;
+      padding-right: 2.5rem;
+      display: flex; align-items: center; gap: 1.2rem;
+    }
+    .mq-sep { color: var(--creme); font-size: 0.45em; opacity: 0.7; }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* =============================================
+       SECTION LABELS & TITLES (reusable)
+    ============================================= */
+    .s-label {
+      display: inline-flex; align-items: center; gap: 0.8rem;
+      font-family: var(--font-body);
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--or);
+      margin-bottom: 1.2rem;
+    }
+    .s-label-num {
+      font-size: 0.6rem;
+      opacity: 0.6;
+    }
+    .s-title {
+      font-family: var(--font-display);
+      font-size: clamp(3.2rem, 6.5vw, 7.5rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 0.9;
+      letter-spacing: -0.02em;
+    }
+    .s-title.light { color: var(--creme); }
+    .s-title.dark  { color: var(--text-on-light); }
+
+    /* =============================================
+       NOS SPÉCIALITÉS
+    ============================================= */
+    #specialites {
+      background: var(--noir-deep);
+      padding: 8rem 0 0;
+    }
+    .spec-header {
+      padding: 0 5vw;
+      margin-bottom: 4rem;
+    }
+
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .spec-card {
+      position: relative;
+      overflow: hidden;
+      aspect-ratio: 9/13;
+      cursor: pointer;
+    }
+
+    .spec-bg {
+      position: absolute; inset: 0;
+      background-size: cover;
+      background-position: center;
+      transition: transform 0.7s var(--ease-out);
+    }
+    .spec-card:hover .spec-bg { transform: scale(1.07); }
+
+    .spec-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(13,13,13,0.96) 0%,
+        rgba(13,13,13,0.4) 50%,
+        rgba(13,13,13,0.05) 100%
+      );
+      transition: background 0.45s;
+    }
+    .spec-card:hover .spec-overlay {
+      background: linear-gradient(
+        to top,
+        rgba(180,25,25,0.92) 0%,
+        rgba(13,13,13,0.35) 55%,
+        rgba(13,13,13,0.05) 100%
+      );
+    }
+
+    .spec-content {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      padding: 2rem 1.8rem;
+    }
+    .spec-num {
+      font-size: 0.6rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--or);
+      margin-bottom: 0.4rem;
+      display: block;
+    }
+    .spec-name {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 3.2vw, 3.8rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 1;
+      color: var(--creme);
+      margin-bottom: 0.8rem;
+    }
+    .spec-desc {
+      font-size: 0.88rem;
+      font-weight: 300;
+      color: rgba(245,240,232,0.65);
+      line-height: 1.55;
+      max-width: 220px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.4s, transform 0.4s;
+    }
+    .spec-card:hover .spec-desc { opacity: 1; transform: translateY(0); }
+
+    /* Tacos — no photo: gradient bg */
+    .spec-tacos-bg {
+      background: linear-gradient(
+        135deg,
+        #7A1515 0%,
+        #C02020 45%,
+        #E8A020 100%
+      );
+    }
+
+    /* =============================================
+       NOTRE PHILOSOPHIE
+    ============================================= */
+    #philosophie {
+      display: grid;
+      grid-template-columns: 58% 42%;
+      min-height: 100vh;
+      background: var(--creme);
+      color: var(--text-on-light);
+    }
+
+    .philo-left {
+      padding: 9rem 5vw 9rem 5vw;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .philo-left .s-label { color: var(--rouge); }
+    .philo-left .s-title { margin-bottom: 3.5rem; }
+
+    .philo-quote {
+      font-size: clamp(1.05rem, 1.6vw, 1.35rem);
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.75;
+      color: #555;
+      border-left: 3px solid var(--rouge);
+      padding-left: 2rem;
+      margin-bottom: 4rem;
+    }
+    .philo-quote cite {
+      display: block;
+      margin-top: 1rem;
+      font-style: normal;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--rouge);
+      letter-spacing: 0.05em;
+    }
+
+    .philo-values { display: flex; flex-direction: column; gap: 2rem; }
+    .philo-val {
+      display: flex; align-items: flex-start; gap: 1.5rem;
+    }
+    .philo-icon {
+      width: 46px; height: 46px; flex-shrink: 0;
+      background: var(--rouge);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      margin-top: 0.1rem;
+    }
+    .philo-val h4 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-on-light);
+      margin-bottom: 0.3rem;
+    }
+    .philo-val p {
+      font-size: 0.88rem;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .philo-right {
+      position: relative;
+      overflow: hidden;
+    }
+    .philo-right img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      object-position: center top;
+    }
+    /* Gradient blend left edge */
+    .philo-right::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to right, var(--creme) 0%, transparent 18%);
+      pointer-events: none;
+    }
+
+    /* =============================================
+       CHIFFRES CLÉS
+    ============================================= */
+    #stats {
+      background: var(--rouge);
+      padding: 7rem 5vw 6rem;
+    }
+    .stats-header {
+      margin-bottom: 5rem;
+    }
+    .stats-header .s-label { color: rgba(245,240,232,0.55); }
+    .stats-header .s-label .s-label-num { opacity: 1; }
+    .stats-header .s-title { color: var(--creme); max-width: 700px; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid rgba(245,240,232,0.18);
+    }
+    .stat-item {
+      padding: 3rem 2.5rem;
+      border-right: 1px solid rgba(245,240,232,0.18);
+    }
+    .stat-item:last-child { border-right: none; }
+
+    .stat-val {
+      font-family: var(--font-display);
+      font-size: clamp(4rem, 7.5vw, 8.5rem);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--or);
+      display: flex; align-items: baseline; gap: 0.15rem;
+      margin-bottom: 0.6rem;
+    }
+    .stat-prefix { font-size: 0.45em; color: var(--creme); margin-right: 0.1rem; }
+    .stat-suffix { font-size: 0.35em; color: var(--creme); font-weight: 500; margin-left: 0.05rem; }
+    .stat-lbl {
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.55);
+    }
+
+    /* =============================================
+       CARROUSEL AVIS
+    ============================================= */
+    #avis {
+      background: var(--noir-deep);
+      padding: 8rem 0 7rem;
+    }
+    .avis-header {
+      padding: 0 5vw;
+      margin-bottom: 4rem;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .avis-rating {
+      display: flex; align-items: center; gap: 1.2rem;
+    }
+    .avis-stars-big { font-size: 1.4rem; color: var(--or); letter-spacing: 0.06em; }
+    .avis-score-big {
+      font-family: var(--font-display);
+      font-size: 3rem;
+      font-weight: 700;
+      color: var(--creme);
+      line-height: 1;
+    }
+    .avis-count {
+      font-size: 0.78rem;
+      color: rgba(245,240,232,0.4);
+      letter-spacing: 0.05em;
+      margin-top: 0.2rem;
+    }
+
+    /* CSS-only infinite carousel */
+    .carousel-wrap {
+      position: relative;
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 7%, black 93%, transparent 100%);
+    }
+    .carousel-track {
+      display: flex;
+      gap: 1.5rem;
+      width: max-content;
+      animation: scroll-left 42s linear infinite;
+      will-change: transform;
+      transform: translateZ(0);
+      padding: 0.5rem 3rem;
+    }
+    .carousel-wrap:hover .carousel-track { animation-play-state: paused; }
+
+    @keyframes scroll-left {
+      from { transform: translateX(0) translateZ(0); }
+      to   { transform: translateX(-50%) translateZ(0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .carousel-track { animation: none; }
+      .carousel-wrap { overflow-x: auto; mask-image: none; -webkit-mask-image: none; }
+    }
+
+    .avis-card {
+      min-width: 370px; max-width: 370px;
+      background: #1D1D1D;
+      border: 1px solid rgba(245,240,232,0.07);
+      padding: 2rem 2rem 1.8rem;
+      flex-shrink: 0;
+      position: relative;
+      transition: border-color 0.3s;
+    }
+    .avis-card:hover { border-color: rgba(247,183,49,0.25); }
+
+    .avis-open-quote {
+      position: absolute; top: 1rem; right: 1.5rem;
+      font-family: var(--font-display);
+      font-size: 5.5rem;
+      line-height: 1;
+      color: var(--rouge);
+      opacity: 0.22;
+      user-select: none;
+    }
+
+    .avis-stars {
+      color: var(--or);
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      margin-bottom: 1.1rem;
+    }
+    .avis-text {
+      font-size: 0.92rem;
+      font-weight: 300;
+      font-style: italic;
+      line-height: 1.72;
+      color: rgba(245,240,232,0.78);
+      margin-bottom: 1.5rem;
+    }
+    .avis-author {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--or);
+      display: flex; align-items: center; gap: 0.7rem;
+    }
+    .avis-author::before { content: '—'; opacity: 0.5; }
+    .avis-source {
+      font-weight: 300;
+      color: rgba(245,240,232,0.35);
+      text-transform: none;
+      letter-spacing: 0;
+    }
+
+    /* =============================================
+       NOTRE CARTE
+    ============================================= */
+    #carte {
+      background: var(--gris);
+      padding: 8rem 5vw;
+    }
+    #carte .s-label { color: var(--or); margin-bottom: 1.2rem; }
+    #carte .s-title { color: var(--creme); margin-bottom: 4.5rem; }
+
+    .carte-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.2rem;
+    }
+    .carte-item {
+      position: relative;
+      overflow: hidden;
+      cursor: zoom-in;
+      background: #111;
+    }
+    .carte-item img {
+      width: 100%; height: auto;
+      display: block;
+      transition: transform 0.55s var(--ease-out);
+    }
+    .carte-item:hover img { transform: scale(1.04); }
+    .carte-badge {
+      position: absolute;
+      top: 1rem; left: 1rem;
+      background: rgba(13,13,13,0.84);
+      padding: 0.4rem 0.9rem;
+      font-family: var(--font-display);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--or);
+      border-left: 2px solid var(--rouge);
+    }
+    .carte-item.full { grid-column: 1 / -1; }
+
+    /* =============================================
+       NOUS TROUVER
+    ============================================= */
+    #trouver {
+      background: var(--noir-deep);
+      padding: 8rem 5vw;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8vw;
+      align-items: center;
+      min-height: 80vh;
+    }
+
+    .trouver-left .s-label { color: var(--or); }
+    .trouver-left .s-title { color: var(--creme); margin-bottom: 4rem; }
+
+    .trouver-blocs { display: flex; flex-direction: column; gap: 2.5rem; }
+    .trouver-bloc {
+      padding-top: 1.8rem;
+      border-top: 1px solid rgba(245,240,232,0.1);
+    }
+    .trouver-bloc-lbl {
+      font-size: 0.68rem;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--or);
+      margin-bottom: 0.7rem;
+    }
+    .trouver-bloc-val {
+      font-size: 1.05rem;
+      font-weight: 300;
+      color: rgba(245,240,232,0.8);
+      line-height: 1.75;
+    }
+    .trouver-bloc-val strong { font-weight: 500; color: var(--creme); }
+    .trouver-phone {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      font-weight: 700;
+      color: var(--or);
+      letter-spacing: 0.04em;
+      transition: color 0.2s;
+      display: inline-block;
+    }
+    .trouver-phone:hover { color: var(--creme); }
+
+    .trouver-right {
+      display: flex; flex-direction: column; gap: 1.5rem;
+    }
+
+    .trouver-card {
+      background: var(--gris);
+      border: 1px solid rgba(245,240,232,0.06);
+      padding: 3rem 2.5rem;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1.5rem;
+      text-align: center;
+    }
+    .trouver-pin { font-size: 2.5rem; }
+    .trouver-addr {
+      font-family: var(--font-display);
+      font-size: 1.2rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--creme-dim);
+      line-height: 1.4;
+    }
+    .trouver-maps-btn {
+      display: inline-block;
+      background: var(--rouge);
+      color: var(--creme);
+      font-family: var(--font-display);
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.8rem 1.8rem;
+      transition: background 0.2s;
+    }
+    .trouver-maps-btn:hover { background: var(--rouge-dark); }
+
+    .trouver-logo-box {
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem;
+      background: #111;
+      border: 1px solid rgba(245,240,232,0.05);
+    }
+    .trouver-logo-box img { max-height: 120px; width: auto; }
+
+    /* =============================================
+       FOOTER
+    ============================================= */
+    footer {
+      background: #080808;
+      padding: 2.5rem 5vw;
+      display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+      border-top: 1px solid rgba(245,240,232,0.04);
+      flex-wrap: wrap;
+    }
+    .footer-logo {
+      font-family: var(--font-display);
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+    .footer-logo em { color: var(--or); font-style: normal; }
+    .footer-copy {
+      font-size: 0.78rem;
+      color: rgba(245,240,232,0.25);
+    }
+    .footer-fb {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--or);
+      opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .footer-fb:hover { opacity: 1; }
+
+    /* =============================================
+       PERSISTENT CTA BAR
+    ============================================= */
+    .cta-bar {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      z-index: 90;
+      background: var(--rouge);
+      display: flex; align-items: center; justify-content: center; gap: 2rem;
+      padding: 0.85rem 5vw;
+      transform: translateY(100%);
+      transition: transform 0.45s var(--ease-out);
+    }
+    .cta-bar.visible { transform: translateY(0); }
+    .cta-bar-txt {
+      font-family: var(--font-display);
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--creme);
+    }
+    .cta-bar-sep { width: 1px; height: 18px; background: rgba(245,240,232,0.25); }
+    .cta-bar-phone {
+      font-family: var(--font-display);
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--or);
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+    }
+    .cta-bar-phone:hover { color: var(--creme); }
+
+    /* =============================================
+       LIGHTBOX
+    ============================================= */
+    .lightbox {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,0.93);
+      z-index: 1000;
+      align-items: center; justify-content: center;
+    }
+    .lightbox.open { display: flex; }
+    .lightbox img {
+      max-width: 88vw; max-height: 88vh;
+      object-fit: contain;
+      border: 1px solid rgba(245,240,232,0.08);
+    }
+    .lb-close {
+      position: absolute; top: 1.8rem; right: 2rem;
+      background: none; border: none;
+      color: var(--creme); font-size: 2rem;
+      cursor: pointer; line-height: 1; opacity: 0.7;
+      transition: opacity 0.2s;
+    }
+    .lb-close:hover { opacity: 1; }
+
+    /* =============================================
+       RESPONSIVE
+    ============================================= */
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .spec-grid { grid-template-columns: repeat(2, 1fr); }
+      #philosophie { grid-template-columns: 1fr; }
+      .philo-right { min-height: 55vw; max-height: 500px; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      #trouver { grid-template-columns: 1fr; min-height: auto; padding: 6rem 5vw; }
+      .carte-grid { grid-template-columns: 1fr; }
+      .carte-item.full { grid-column: 1; }
+    }
+    @media (max-width: 580px) {
+      .spec-grid { grid-template-columns: 1fr; }
+      .cta-bar { flex-wrap: wrap; gap: 0.5rem; padding: 0.7rem 5vw; }
+      .hero-title { font-size: clamp(4rem, 16vw, 8rem); }
+    }
+
+    /* =============================================
+       NAV CART BUTTON
+    ============================================= */
+    .nav-cart-btn {
+      position: relative;
+      background: rgba(247,183,49,0.12);
+      border: 1px solid rgba(247,183,49,0.3);
+      color: var(--or);
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 0.55rem;
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: background 0.2s, border-color 0.2s;
+      flex-shrink: 0;
+    }
+    .nav-cart-btn:hover { background: rgba(247,183,49,0.2); }
+    .nav-cart-icon { font-size: 1rem; }
+    .nav-cart-badge {
+      background: var(--rouge);
+      color: var(--creme);
+      border-radius: 50%;
+      width: 18px; height: 18px;
+      display: none; align-items: center; justify-content: center;
+      font-size: 0.65rem; font-weight: 700;
+      position: absolute; top: -6px; right: -6px;
+    }
+    .nav-cart-badge.show { display: flex; }
+    .nav-cart-badge.pop  { animation: badge-pop 0.3s var(--ease-out); }
+    @keyframes badge-pop {
+      0%   { transform: scale(1); }
+      45%  { transform: scale(1.6); }
+      100% { transform: scale(1); }
+    }
+
+    /* =============================================
+       SECTION COMMANDER
+    ============================================= */
+    #commander {
+      background: #080808;
+      padding: 8rem 5vw;
+    }
+    #commander .s-label { color: var(--or); }
+    #commander .s-title { color: var(--creme); }
+    .cmd-tagline {
+      font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+      font-weight: 300;
+      color: var(--creme-dim);
+      margin-top: 1.2rem;
+      max-width: 520px;
+      line-height: 1.6;
+    }
+
+    /* Tabs catégories */
+    .cmd-tabs {
+      display: flex; gap: 0.5rem; flex-wrap: wrap;
+      margin: 3.5rem 0 3rem;
+    }
+    .cmd-tab {
+      background: transparent;
+      border: 1px solid rgba(245,240,232,0.12);
+      color: rgba(245,240,232,0.5);
+      font-family: var(--font-display);
+      font-size: 0.88rem; font-weight: 600;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      padding: 0.65rem 1.4rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .cmd-tab:hover { border-color: var(--or); color: var(--or); }
+    .cmd-tab.active {
+      background: var(--rouge); border-color: var(--rouge);
+      color: var(--creme);
+    }
+    .cmd-tab-emoji { font-size: 1rem; }
+
+    /* Grille produits */
+    .cmd-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 1.2rem;
+    }
+
+    /* Carte produit */
+    .prod-card {
+      background: #141414;
+      border: 1px solid rgba(245,240,232,0.07);
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.25s;
+      display: flex; flex-direction: column;
+    }
+    .prod-card:hover {
+      border-color: rgba(247,183,49,0.22);
+      transform: translateY(-3px);
+    }
+    .prod-visual {
+      height: 155px;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .prod-visual img {
+      width: 100%; height: 100%;
+      object-fit: cover; object-position: center;
+      transition: transform 0.5s var(--ease-out);
+    }
+    .prod-card:hover .prod-visual img { transform: scale(1.06); }
+    .prod-visual-gradient {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 3.8rem;
+    }
+    .prod-body {
+      padding: 1.1rem 1.1rem 1.2rem;
+      display: flex; flex-direction: column; flex: 1;
+    }
+    .prod-name {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--creme);
+      margin-bottom: 0.35rem;
+    }
+    .prod-desc {
+      font-size: 0.78rem;
+      color: rgba(245,240,232,0.42);
+      line-height: 1.55;
+      flex: 1;
+      margin-bottom: 1rem;
+    }
+    .prod-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 0.6rem; margin-top: auto;
+    }
+    .prod-price {
+      font-family: var(--font-display);
+      font-size: 1.25rem; font-weight: 700;
+      color: var(--or);
+      flex-shrink: 0;
+    }
+    .prod-add-btn {
+      background: var(--rouge); color: var(--creme);
+      border: none; cursor: pointer;
+      font-family: var(--font-display);
+      font-size: 0.8rem; font-weight: 600;
+      letter-spacing: 0.07em; text-transform: uppercase;
+      padding: 0.6rem 1rem;
+      transition: background 0.2s;
+      white-space: nowrap; flex-shrink: 0;
+    }
+    .prod-add-btn:hover { background: var(--rouge-dark); }
+
+    /* Contrôle quantité sur carte produit */
+    .prod-qty-ctrl {
+      display: flex; align-items: center; gap: 0;
+    }
+    .prod-qty-btn {
+      width: 30px; height: 30px;
+      background: #2A2A2A;
+      border: 1px solid rgba(245,240,232,0.12);
+      color: var(--creme);
+      cursor: pointer; font-size: 1rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s; flex-shrink: 0;
+    }
+    .prod-qty-btn:hover { background: var(--rouge); }
+    .prod-qty-num {
+      width: 34px; height: 30px;
+      background: #1A1A1A;
+      border-top: 1px solid rgba(245,240,232,0.12);
+      border-bottom: 1px solid rgba(245,240,232,0.12);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--or);
+    }
+
+    /* =============================================
+       CART OVERLAY + SIDEBAR
+    ============================================= */
+    .cart-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 200;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.35s;
+      backdrop-filter: blur(5px);
+    }
+    .cart-overlay.open { opacity: 1; pointer-events: all; }
+
+    .cart-sidebar {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(450px, 100vw);
+      background: #0F0F0F;
+      z-index: 201;
+      display: flex; flex-direction: column;
+      transform: translateX(100%);
+      transition: transform 0.42s var(--ease-out);
+      border-left: 1px solid rgba(245,240,232,0.07);
+    }
+    .cart-sidebar.open { transform: translateX(0); }
+
+    .cart-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.8rem 2rem 1.5rem;
+      border-bottom: 1px solid rgba(245,240,232,0.08);
+      flex-shrink: 0;
+    }
+    .cart-title-row {
+      display: flex; align-items: center; gap: 0.9rem;
+    }
+    .cart-title-txt {
+      font-family: var(--font-display);
+      font-size: 1.3rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--creme);
+    }
+    .cart-count-pill {
+      background: var(--rouge);
+      color: var(--creme);
+      padding: 0.1rem 0.55rem;
+      font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.05em;
+      font-family: var(--font-display);
+    }
+    .cart-close-btn {
+      background: none; border: none;
+      color: rgba(245,240,232,0.4);
+      font-size: 1.6rem; cursor: pointer; line-height: 1;
+      transition: color 0.2s; padding: 0.2rem;
+    }
+    .cart-close-btn:hover { color: var(--creme); }
+
+    .cart-body {
+      flex: 1; overflow-y: auto;
+      padding: 1rem 2rem;
+    }
+    .cart-body::-webkit-scrollbar { width: 3px; }
+    .cart-body::-webkit-scrollbar-thumb { background: rgba(245,240,232,0.12); }
+
+    /* État vide */
+    .cart-empty {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      height: 100%; gap: 1rem; text-align: center;
+      padding: 3rem 1rem;
+    }
+    .cart-empty-emoji { font-size: 3.5rem; }
+    .cart-empty-title {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: rgba(245,240,232,0.3);
+    }
+    .cart-empty-sub {
+      font-size: 0.82rem; color: rgba(245,240,232,0.2);
+      line-height: 1.6; max-width: 240px;
+    }
+    .cart-empty-cta {
+      background: var(--rouge); color: var(--creme);
+      font-family: var(--font-display);
+      font-size: 0.82rem; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 0.7rem 1.4rem; border: none; cursor: pointer;
+      margin-top: 0.5rem; transition: background 0.2s;
+    }
+    .cart-empty-cta:hover { background: var(--rouge-dark); }
+
+    /* Ligne panier */
+    .cart-item {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(245,240,232,0.06);
+      animation: item-in 0.3s var(--ease-out);
+    }
+    @keyframes item-in {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .cart-item-emoji {
+      font-size: 1.6rem; flex-shrink: 0;
+      width: 40px; text-align: center;
+    }
+    .cart-item-info { flex: 1; min-width: 0; }
+    .cart-item-name {
+      font-family: var(--font-display);
+      font-size: 0.92rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--creme);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .cart-item-unit {
+      font-size: 0.75rem; color: rgba(245,240,232,0.38);
+      margin-top: 0.1rem;
+    }
+    .cart-item-right {
+      display: flex; flex-direction: column;
+      align-items: flex-end; gap: 0.5rem; flex-shrink: 0;
+    }
+    .cart-item-subtotal {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 700; color: var(--or);
+    }
+    .cart-item-qty {
+      display: flex; align-items: center;
+    }
+    .cart-item-qty-btn {
+      width: 26px; height: 26px;
+      background: #222; border: 1px solid rgba(245,240,232,0.1);
+      color: var(--creme); cursor: pointer;
+      font-size: 0.85rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.15s;
+    }
+    .cart-item-qty-btn:hover { background: var(--rouge); }
+    .cart-item-qty-num {
+      width: 30px; height: 26px;
+      background: #1A1A1A;
+      border-top: 1px solid rgba(245,240,232,0.1);
+      border-bottom: 1px solid rgba(245,240,232,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-display);
+      font-size: 0.85rem; font-weight: 700; color: var(--or);
+    }
+
+    /* Footer panier */
+    .cart-footer {
+      padding: 1.5rem 2rem 2.5rem;
+      border-top: 1px solid rgba(245,240,232,0.08);
+      flex-shrink: 0;
+      background: #0A0A0A;
+    }
+    .cart-items-summary {
+      display: flex; flex-direction: column; gap: 0.4rem;
+      margin-bottom: 1.2rem;
+    }
+    .cart-items-summary-row {
+      display: flex; justify-content: space-between;
+      font-size: 0.8rem; color: rgba(245,240,232,0.4);
+    }
+    .cart-total-row {
+      display: flex; justify-content: space-between; align-items: baseline;
+      padding-top: 0.8rem;
+      border-top: 1px solid rgba(245,240,232,0.1);
+      margin-bottom: 0.5rem;
+    }
+    .cart-total-lbl {
+      font-size: 0.72rem; letter-spacing: 0.16em;
+      text-transform: uppercase; color: rgba(245,240,232,0.5);
+    }
+    .cart-total-val {
+      font-family: var(--font-display);
+      font-size: 2rem; font-weight: 700; color: var(--creme);
+    }
+    .cart-disclaimer {
+      font-size: 0.7rem; color: rgba(245,240,232,0.25);
+      margin-bottom: 1.5rem; line-height: 1.5;
+    }
+
+    /* Bouton appeler */
+    .cart-call-btn {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      background: var(--or);
+      color: var(--noir-deep);
+      padding: 1.3rem 2rem;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.2s, transform 0.15s;
+      gap: 0.25rem;
+    }
+    .cart-call-btn:hover { background: #e8a800; transform: translateY(-1px); }
+    .cart-call-label {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      display: flex; align-items: center; gap: 0.6rem;
+    }
+    .cart-call-number {
+      font-family: var(--font-display);
+      font-size: 1.55rem; font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    .cart-call-hint {
+      font-size: 0.7rem; color: rgba(13,13,13,0.5);
+      letter-spacing: 0.05em;
+    }
+
+    @media (max-width: 580px) {
+      .spec-grid { grid-template-columns: 1fr; }
+      .cta-bar { flex-wrap: wrap; gap: 0.5rem; padding: 0.7rem 5vw; }
+      .hero-title { font-size: clamp(4rem, 16vw, 8rem); }
+      .cmd-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursor-dot"></div>
+<div class="cursor-ring" id="cursor-ring"></div>
+
+<!-- Nav -->
+<nav class="nav" id="main-nav">
+  <a href="#hero" class="nav-logo">PIZZ'<em>SNACK</em>&BOWL</a>
+  <div class="nav-links">
+    <a href="#specialites">Spécialités</a>
+    <a href="#philosophie">Notre histoire</a>
+    <a href="#avis">Avis</a>
+    <a href="#carte">La carte</a>
+    <a href="#trouver" class="nav-btn">Nous trouver</a>
+    <button class="nav-cart-btn" id="nav-cart-btn" onclick="openCart()" aria-label="Voir mon panier">
+      <span class="nav-cart-icon">🛒</span>
+      <span>Panier</span>
+      <span class="nav-cart-badge" id="nav-cart-badge">0</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section id="hero">
+  <div class="hero-bg" id="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-grain"></div>
+
+  <div class="hero-inner">
+    <p class="hero-label">001 &nbsp;/&nbsp; Restaurant artisanal · Fleury-d'Aude</p>
+    <h1 class="hero-title">
+      <span class="line">Artisanal.</span>
+      <span class="line">Frais.</span>
+      <span class="line accent">Généreux.</span>
+    </h1>
+    <p class="hero-sub">Pizza &nbsp;·&nbsp; Bowl &nbsp;·&nbsp; Burger &nbsp;·&nbsp; Tacos</p>
+    <a href="#carte" class="hero-cta">
+      Voir la carte
+      <span class="hero-cta-arrow">→</span>
+    </a>
+  </div>
+
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    <span class="hero-scroll-txt">Découvrir</span>
+  </div>
+</section>
+
+<!-- Marquee -->
+<div class="marquee-band" aria-hidden="true">
+  <div class="marquee-track">
+    <div class="marquee-item">
+      Pizza<span class="mq-sep">◆</span>Bowl<span class="mq-sep">◆</span>Burger<span class="mq-sep">◆</span>Tacos<span class="mq-sep">◆</span>Fait Maison<span class="mq-sep">◆</span>Ingrédients Frais<span class="mq-sep">◆</span>Généreux<span class="mq-sep">◆</span>Fleury-d'Aude<span class="mq-sep">◆</span>
+    </div>
+    <div class="marquee-item" aria-hidden="true">
+      Pizza<span class="mq-sep">◆</span>Bowl<span class="mq-sep">◆</span>Burger<span class="mq-sep">◆</span>Tacos<span class="mq-sep">◆</span>Fait Maison<span class="mq-sep">◆</span>Ingrédients Frais<span class="mq-sep">◆</span>Généreux<span class="mq-sep">◆</span>Fleury-d'Aude<span class="mq-sep">◆</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     NOS SPÉCIALITÉS
+============================================================ -->
+<section id="specialites">
+  <div class="spec-header">
+    <span class="s-label" data-anim="fade-up">
+      <span class="s-label-num">002</span> / Nos Spécialités
+    </span>
+    <h2 class="s-title light" data-anim="slide-left">Ce qu'on<br>fait bien.</h2>
+  </div>
+
+  <div class="spec-grid">
+    <!-- Pizza -->
+    <div class="spec-card" data-anim-group="spec">
+      <div class="spec-bg" style="background-image:url('pizz-snack-bowl-assets/media/images/pizza/pizza-bacon-01.jpg')"></div>
+      <div class="spec-overlay"></div>
+      <div class="spec-content">
+        <span class="spec-num">01</span>
+        <h3 class="spec-name">Pizza</h3>
+        <p class="spec-desc">Pâte pétrie chaque jour, garnitures généreuses, cuisson au four. La pizza comme à la maison.</p>
+      </div>
+    </div>
+
+    <!-- Bowl -->
+    <div class="spec-card" data-anim-group="spec">
+      <div class="spec-bg" style="background-image:url('pizz-snack-bowl-assets/media/images/bowl/bowl-poke-produits-locaux-01.jpg')"></div>
+      <div class="spec-overlay"></div>
+      <div class="spec-content">
+        <span class="spec-num">02</span>
+        <h3 class="spec-name">Bowl</h3>
+        <p class="spec-desc">Poké bowls colorés, sauce maison, produits locaux. Frais, copieux, irrésistibles.</p>
+      </div>
+    </div>
+
+    <!-- Burger -->
+    <div class="spec-card" data-anim-group="spec">
+      <div class="spec-bg" style="background-image:url('pizz-snack-bowl-assets/media/images/burger/burger-chicken-reblochon-01.jpg')"></div>
+      <div class="spec-overlay"></div>
+      <div class="spec-content">
+        <span class="spec-num">03</span>
+        <h3 class="spec-name">Burger</h3>
+        <p class="spec-desc">Généreux, bien assaisonné, avec les meilleures garnitures de la région.</p>
+      </div>
+    </div>
+
+    <!-- Tacos — no photo -->
+    <div class="spec-card" data-anim-group="spec">
+      <div class="spec-bg spec-tacos-bg"></div>
+      <div class="spec-overlay" style="background:linear-gradient(to top,rgba(13,13,13,0.95) 0%,transparent 65%)"></div>
+      <div class="spec-content">
+        <span class="spec-num">04</span>
+        <h3 class="spec-name">Tacos</h3>
+        <p class="spec-desc">Un des meilleurs de la région selon nos clients TripAdvisor. Garnis, savoureux.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     NOTRE PHILOSOPHIE
+============================================================ -->
+<section id="philosophie">
+  <div class="philo-left">
+    <span class="s-label" data-anim="fade-up">
+      <span class="s-label-num">003</span> / Notre Histoire
+    </span>
+    <h2 class="s-title dark" data-anim="slide-left">L'amour<br>du fait<br>maison.</h2>
+    <blockquote class="philo-quote" data-anim="fade-up">
+      "La patience et la persévérance sont nos meilleures amies quand on crée une entreprise — on l'a fait&nbsp;!"
+      <cite>— Maeva Travers, fondatrice</cite>
+    </blockquote>
+    <div class="philo-values">
+      <div class="philo-val" data-anim="fade-up">
+        <div class="philo-icon">🍕</div>
+        <div>
+          <h4>Fait Maison</h4>
+          <p>Pâte pétrie quotidiennement, sauces maison, bowls assemblés à la commande. Aucun compromis.</p>
+        </div>
+      </div>
+      <div class="philo-val" data-anim="fade-up">
+        <div class="philo-icon">🌿</div>
+        <div>
+          <h4>Ingrédients Frais</h4>
+          <p>Des produits sélectionnés avec soin, locaux quand c'est possible. La fraîcheur se voit dans l'assiette.</p>
+        </div>
+      </div>
+      <div class="philo-val" data-anim="fade-up">
+        <div class="philo-icon">☀️</div>
+        <div>
+          <h4>Accueil Chaleureux</h4>
+          <p>Maeva et son équipe accueillent chaque client comme à la maison. C'est ce qui nous différencie.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="philo-right" data-anim="slide-right">
+    <img
+      src="pizz-snack-bowl-assets/media/images/equipe/equipe-4-facade-terrasse-06.jpg"
+      alt="L'équipe Pizz'Snack&Bowl devant le restaurant à Fleury-d'Aude"
+      loading="lazy"
+    >
+  </div>
+</section>
+
+<!-- ============================================================
+     CHIFFRES CLÉS
+============================================================ -->
+<section id="stats">
+  <div class="stats-header">
+    <span class="s-label" data-anim="fade-up">
+      <span class="s-label-num">004</span> / Ce que disent nos clients
+    </span>
+    <h2 class="s-title" style="color:var(--creme)" data-anim="slide-left">Des chiffres<br>qui parlent.</h2>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-item" data-anim-group="stats">
+      <div class="stat-val">
+        <span data-count="4.8" data-decimal="true">4.8</span><span class="stat-suffix">★</span>
+      </div>
+      <div class="stat-lbl">Note Google Maps</div>
+    </div>
+    <div class="stat-item" data-anim-group="stats">
+      <div class="stat-val">
+        <span data-count="93">93</span><span class="stat-suffix">+</span>
+      </div>
+      <div class="stat-lbl">Avis clients</div>
+    </div>
+    <div class="stat-item" data-anim-group="stats">
+      <div class="stat-val">
+        <span class="stat-prefix">~</span><span data-count="15">15</span><span class="stat-suffix">€</span>
+      </div>
+      <div class="stat-lbl">Par personne</div>
+    </div>
+    <div class="stat-item" data-anim-group="stats">
+      <div class="stat-val">
+        <span data-count="5">5</span>
+      </div>
+      <div class="stat-lbl">Soirs par semaine</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CARROUSEL AVIS
+============================================================ -->
+<section id="avis">
+  <div class="avis-header">
+    <div>
+      <span class="s-label" data-anim="fade-up">
+        <span class="s-label-num">005</span> / Avis Clients
+      </span>
+      <h2 class="s-title light" data-anim="slide-left">Ils en parlent<br>mieux que nous.</h2>
+    </div>
+    <div class="avis-rating" data-anim="fade-up">
+      <div class="avis-stars-big">★★★★★</div>
+      <div>
+        <div class="avis-score-big">4.8</div>
+        <div class="avis-count">93 avis · Google Maps</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="carousel-wrap">
+    <div class="carousel-track">
+
+      <!-- 10 avis originaux -->
+      <div class="avis-card">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Excellent pizza, wonderful dough — the calzone egg was runny just as it should be. A true artisan at work."</p>
+        <div class="avis-author">Client Google <span class="avis-source">&nbsp;· Google Maps</span></div>
+      </div>
+
+      <div class="avis-card">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Poke bowls super frais et copieux, sauce maison délicieuse. On reviendra&nbsp;!"</p>
+        <div class="avis-author">Client Google <span class="avis-source">&nbsp;· Google Maps</span></div>
+      </div>
+
+      <div class="avis-card">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Cozy and welcoming establishment with excellent food, friendly owners, and affordable prices. The pizzas are delicious and the ingredients are fresh."</p>
+        <div class="avis-author">Visiteur <span class="avis-source">&nbsp;· TripAdvisor</span></div>
+      </div>
+
+      <div class="avis-card">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Very welcoming staff. We had pizza and poke bowls — both were outstanding. The terrace looks very nice in summer."</p>
+        <div class="avis-author">Visiteur <span class="avis-source">&nbsp;· TripAdvisor</span></div>
+      </div>
+
+      <div class="avis-card">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"The tacos are excellent, one of the best I've had in the region. Will definitely come back."</p>
+        <div class="avis-author">Visiteur <span class="avis-source">&nbsp;· TripAdvisor</span></div>
+      </div>
+
+      <div class="avis-card">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Les enfants ont adoré les paninis. Nous les parents avons pris pizza et bowl — tout était parfait. Excellent rapport qualité-prix."</p>
+        <div class="avis-author">Client Google <span class="avis-source">&nbsp;· Google Maps</span></div>
+      </div>
+
+      <div class="avis-card">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Friendly owners, great food. We came back 3 times during our holidays in Fleury."</p>
+        <div class="avis-author">Touriste <span class="avis-source">&nbsp;· Google Maps</span></div>
+      </div>
+
+      <div class="avis-card">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Best burger I've had in the area. Very hearty, well seasoned, excellent bun."</p>
+        <div class="avis-author">Client <span class="avis-source">&nbsp;· Restaurant Guru</span></div>
+      </div>
+
+      <div class="avis-card">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"The cal-membert pizza is a must-try — creamy, generous, perfect."</p>
+        <div class="avis-author">Client <span class="avis-source">&nbsp;· Restaurant Guru</span></div>
+      </div>
+
+      <div class="avis-card">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Patience et persévérance — Maeva a réussi son pari&nbsp;! Un endroit vraiment chaleureux et une cuisine faite avec amour."</p>
+        <div class="avis-author">Visiteur <span class="avis-source">&nbsp;· TripAdvisor</span></div>
+      </div>
+
+      <!-- 10 duplicates for seamless loop -->
+      <div class="avis-card" aria-hidden="true">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Excellent pizza, wonderful dough — the calzone egg was runny just as it should be. A true artisan at work."</p>
+        <div class="avis-author">Client Google <span class="avis-source">&nbsp;· Google Maps</span></div>
+      </div>
+      <div class="avis-card" aria-hidden="true">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Poke bowls super frais et copieux, sauce maison délicieuse. On reviendra&nbsp;!"</p>
+        <div class="avis-author">Client Google <span class="avis-source">&nbsp;· Google Maps</span></div>
+      </div>
+      <div class="avis-card" aria-hidden="true">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Cozy and welcoming establishment with excellent food, friendly owners, and affordable prices. The pizzas are delicious and the ingredients are fresh."</p>
+        <div class="avis-author">Visiteur <span class="avis-source">&nbsp;· TripAdvisor</span></div>
+      </div>
+      <div class="avis-card" aria-hidden="true">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Very welcoming staff. We had pizza and poke bowls — both were outstanding. The terrace looks very nice in summer."</p>
+        <div class="avis-author">Visiteur <span class="avis-source">&nbsp;· TripAdvisor</span></div>
+      </div>
+      <div class="avis-card" aria-hidden="true">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"The tacos are excellent, one of the best I've had in the region. Will definitely come back."</p>
+        <div class="avis-author">Visiteur <span class="avis-source">&nbsp;· TripAdvisor</span></div>
+      </div>
+      <div class="avis-card" aria-hidden="true">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Les enfants ont adoré les paninis. Nous les parents avons pris pizza et bowl — tout était parfait. Excellent rapport qualité-prix."</p>
+        <div class="avis-author">Client Google <span class="avis-source">&nbsp;· Google Maps</span></div>
+      </div>
+      <div class="avis-card" aria-hidden="true">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Friendly owners, great food. We came back 3 times during our holidays in Fleury."</p>
+        <div class="avis-author">Touriste <span class="avis-source">&nbsp;· Google Maps</span></div>
+      </div>
+      <div class="avis-card" aria-hidden="true">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Best burger I've had in the area. Very hearty, well seasoned, excellent bun."</p>
+        <div class="avis-author">Client <span class="avis-source">&nbsp;· Restaurant Guru</span></div>
+      </div>
+      <div class="avis-card" aria-hidden="true">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"The cal-membert pizza is a must-try — creamy, generous, perfect."</p>
+        <div class="avis-author">Client <span class="avis-source">&nbsp;· Restaurant Guru</span></div>
+      </div>
+      <div class="avis-card" aria-hidden="true">
+        <div class="avis-open-quote">"</div>
+        <div class="avis-stars">★★★★★</div>
+        <p class="avis-text">"Patience et persévérance — Maeva a réussi son pari&nbsp;! Un endroit vraiment chaleureux et une cuisine faite avec amour."</p>
+        <div class="avis-author">Visiteur <span class="avis-source">&nbsp;· TripAdvisor</span></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     NOTRE CARTE
+============================================================ -->
+<section id="carte">
+  <span class="s-label" data-anim="fade-up">
+    <span class="s-label-num">006</span> / Notre Carte
+  </span>
+  <h2 class="s-title light" data-anim="slide-left">Pour tous<br>les goûts.</h2>
+
+  <div class="carte-grid">
+    <div class="carte-item" data-anim-group="carte" onclick="openLightbox('pizz-snack-bowl-assets/media/photos-tarifs/tarif-carte-pizza-tomate-01.jpg', 'Carte Pizzas · Base Tomate')">
+      <img src="pizz-snack-bowl-assets/media/photos-tarifs/tarif-carte-pizza-tomate-01.jpg" alt="Carte pizzas base tomate" loading="lazy">
+      <div class="carte-badge">Pizzas · Base Tomate</div>
+    </div>
+
+    <div class="carte-item" data-anim-group="carte" onclick="openLightbox('pizz-snack-bowl-assets/media/photos-tarifs/tarif-carte-pizza-creme-01.jpg', 'Carte Pizzas · Base Crème')">
+      <img src="pizz-snack-bowl-assets/media/photos-tarifs/tarif-carte-pizza-creme-01.jpg" alt="Carte pizzas base crème" loading="lazy">
+      <div class="carte-badge">Pizzas · Base Crème</div>
+    </div>
+
+    <div class="carte-item" data-anim-group="carte" onclick="openLightbox('pizz-snack-bowl-assets/media/photos-tarifs/tarif-menu-burger-panini-01.jpg', 'Burgers & Paninis')">
+      <img src="pizz-snack-bowl-assets/media/photos-tarifs/tarif-menu-burger-panini-01.jpg" alt="Menu burgers et paninis" loading="lazy">
+      <div class="carte-badge">Burgers & Paninis</div>
+    </div>
+
+    <div class="carte-item" data-anim-group="carte" onclick="openLightbox('pizz-snack-bowl-assets/media/photos-tarifs/tarif-menu-tacos-desserts-boissons-01.jpg', 'Tacos · Desserts · Boissons')">
+      <img src="pizz-snack-bowl-assets/media/photos-tarifs/tarif-menu-tacos-desserts-boissons-01.jpg" alt="Menu tacos desserts boissons" loading="lazy">
+      <div class="carte-badge">Tacos · Desserts · Boissons</div>
+    </div>
+
+    <div class="carte-item full" data-anim="fade-up" onclick="openLightbox('pizz-snack-bowl-assets/media/photos-tarifs/tarif-menu-bowl-enfant-01.jpg', 'Poké Bowls & Menu Enfant')">
+      <img src="pizz-snack-bowl-assets/media/photos-tarifs/tarif-menu-bowl-enfant-01.jpg" alt="Menu bowls et enfant" loading="lazy">
+      <div class="carte-badge">Poké Bowls & Menu Enfant</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     COMMANDER
+============================================================ -->
+<section id="commander">
+  <span class="s-label" data-anim="fade-up">
+    <span class="s-label-num">007</span> / Commander
+  </span>
+  <h2 class="s-title light" data-anim="slide-left">Composez<br>votre repas.</h2>
+  <p class="cmd-tagline" data-anim="fade-up">Choisissez vos plats, constituez votre panier, puis appelez-nous pour finaliser votre commande.</p>
+
+  <!-- Tabs catégories -->
+  <div class="cmd-tabs" id="cmd-tabs">
+    <button class="cmd-tab active" data-cat="pizza" onclick="switchTab(this,'pizza')">
+      <span class="cmd-tab-emoji">🍕</span> Pizza
+    </button>
+    <button class="cmd-tab" data-cat="burger" onclick="switchTab(this,'burger')">
+      <span class="cmd-tab-emoji">🍔</span> Burger
+    </button>
+    <button class="cmd-tab" data-cat="tacos" onclick="switchTab(this,'tacos')">
+      <span class="cmd-tab-emoji">🌮</span> Tacos
+    </button>
+    <button class="cmd-tab" data-cat="bowl" onclick="switchTab(this,'bowl')">
+      <span class="cmd-tab-emoji">🥗</span> Bowl
+    </button>
+    <button class="cmd-tab" data-cat="snack" onclick="switchTab(this,'snack')">
+      <span class="cmd-tab-emoji">🍟</span> Snack
+    </button>
+    <button class="cmd-tab" data-cat="boisson" onclick="switchTab(this,'boisson')">
+      <span class="cmd-tab-emoji">🥤</span> Boisson
+    </button>
+  </div>
+
+  <!-- Grille produits (rendue par JS) -->
+  <div class="cmd-grid" id="cmd-grid"></div>
+</section>
+
+<!-- ============================================================
+     NOUS TROUVER
+============================================================ -->
+<section id="trouver">
+  <div class="trouver-left">
+    <span class="s-label" data-anim="fade-up">
+      <span class="s-label-num">008</span> / Nous Trouver
+    </span>
+    <h2 class="s-title light" data-anim="slide-left">On vous<br>attend.</h2>
+
+    <div class="trouver-blocs">
+      <div class="trouver-bloc" data-anim="fade-up">
+        <div class="trouver-bloc-lbl">Adresse</div>
+        <div class="trouver-bloc-val">
+          <strong>30 Boulevard de la République</strong><br>
+          11560 Fleury-d'Aude, France
+        </div>
+      </div>
+
+      <div class="trouver-bloc" data-anim="fade-up">
+        <div class="trouver-bloc-lbl">Téléphone</div>
+        <a href="tel:+33468413130" class="trouver-phone">04 68 41 31 30</a>
+      </div>
+
+      <div class="trouver-bloc" data-anim="fade-up">
+        <div class="trouver-bloc-lbl">Horaires d'ouverture</div>
+        <div class="trouver-bloc-val">
+          <strong>Mardi · Jeudi · Vendredi</strong><br>
+          12h00 – 13h30 &nbsp;&amp;&nbsp; 18h00 – 21h30<br><br>
+          <strong>Mercredi · Samedi</strong><br>
+          18h00 – 21h30<br><br>
+          <strong>Dimanche &amp; Lundi</strong> — Fermé
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="trouver-right" data-anim="scale-up">
+    <div class="trouver-card">
+      <div class="trouver-pin">📍</div>
+      <div class="trouver-addr">
+        30 Bd de la République<br>Fleury-d'Aude (11560)
+      </div>
+      <a
+        href="https://maps.google.com/?q=30+Boulevard+de+la+République,+11560+Fleury-d'Aude"
+        target="_blank"
+        rel="noopener"
+        class="trouver-maps-btn"
+      >
+        Ouvrir dans Google Maps →
+      </a>
+    </div>
+
+    <div class="trouver-logo-box">
+      <img
+        src="pizz-snack-bowl-assets/media/images/logo/logo-or-3d-fond-noir-03.jpg"
+        alt="Logo Pizz'Snack&Bowl"
+        loading="lazy"
+      >
+    </div>
+  </div>
+</section>
+
+<!-- Cart Overlay -->
+<div class="cart-overlay" id="cart-overlay" onclick="closeCart()"></div>
+
+<!-- Cart Sidebar -->
+<div class="cart-sidebar" id="cart-sidebar" role="dialog" aria-label="Votre panier">
+  <div class="cart-header">
+    <div class="cart-title-row">
+      <span class="cart-title-txt">Mon Panier</span>
+      <span class="cart-count-pill" id="cart-count-pill">0 article</span>
+    </div>
+    <button class="cart-close-btn" onclick="closeCart()" aria-label="Fermer le panier">✕</button>
+  </div>
+
+  <div class="cart-body" id="cart-body">
+    <div class="cart-empty" id="cart-empty">
+      <div class="cart-empty-emoji">🍕</div>
+      <div class="cart-empty-title">Votre panier est vide</div>
+      <p class="cart-empty-sub">Choisissez vos plats depuis notre carte et ajoutez-les ici.</p>
+      <button class="cart-empty-cta" onclick="closeCart(); document.getElementById('commander').scrollIntoView({behavior:'smooth'})">
+        Voir la carte →
+      </button>
+    </div>
+    <div id="cart-items-list"></div>
+  </div>
+
+  <div class="cart-footer" id="cart-footer" style="display:none">
+    <div class="cart-items-summary" id="cart-summary"></div>
+    <div class="cart-total-row">
+      <span class="cart-total-lbl">Total estimé</span>
+      <span class="cart-total-val" id="cart-total-val">0,00 €</span>
+    </div>
+    <p class="cart-disclaimer">Prix indicatifs — confirmation au téléphone. Les boissons et desserts peuvent varier.</p>
+    <a href="tel:+33468413130" class="cart-call-btn">
+      <span class="cart-call-label">📞 Appeler maintenant</span>
+      <span class="cart-call-number">04 68 41 31 30</span>
+      <span class="cart-call-hint">Dictez votre commande · Récupération sur place</span>
+    </a>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-logo">PIZZ'<em>SNACK</em>&BOWL</div>
+  <div class="footer-copy">© 2025 Pizz'Snack&Bowl · Fleury-d'Aude · Tous droits réservés</div>
+  <a href="https://www.facebook.com/profile.php?id=100088956742611" target="_blank" rel="noopener" class="footer-fb">
+    Suivre sur Facebook →
+  </a>
+</footer>
+
+<!-- CTA Bar persistante -->
+<div class="cta-bar" id="cta-bar" data-persist="true">
+  <span class="cta-bar-txt">Commandez maintenant</span>
+  <div class="cta-bar-sep"></div>
+  <a href="tel:+33468413130" class="cta-bar-phone">04 68 41 31 30</a>
+  <div class="cta-bar-sep"></div>
+  <span class="cta-bar-txt" style="font-weight:300;font-size:0.8rem;letter-spacing:0.06em;">Fleury-d'Aude</span>
+</div>
+
+<!-- Lightbox -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+  <button class="lb-close" onclick="closeLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<!-- ============================================================
+     SCRIPTS — ordre: Lenis → GSAP → ScrollTrigger → inline
+============================================================ -->
+<script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+
+  // ── Lenis smooth scroll ──
+  const lenis = new Lenis({ lerp: 0.08, duration: 1.2 });
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add((time) => lenis.raf(time * 1000));
+  gsap.ticker.lagSmoothing(0);
+
+  // ── Custom cursor ──
+  const dot  = document.getElementById('cursor-dot');
+  const ring = document.getElementById('cursor-ring');
+  let mx = 0, my = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mx = e.clientX; my = e.clientY;
+    gsap.to(dot,  { x: mx, y: my, duration: 0.12, ease: 'power2.out' });
+    gsap.to(ring, { x: mx, y: my, duration: 0.35, ease: 'power2.out' });
+  });
+
+  const hoverEls = document.querySelectorAll('a, button, .spec-card, .carte-item');
+  hoverEls.forEach(el => {
+    el.addEventListener('mouseenter', () => dot.classList.add('grow'));
+    el.addEventListener('mouseleave', () => dot.classList.remove('grow'));
+  });
+
+  // ── Nav scroll state ──
+  const nav = document.getElementById('main-nav');
+  ScrollTrigger.create({
+    start: 'top -60',
+    onUpdate: (self) => nav.classList.toggle('scrolled', self.progress > 0)
+  });
+
+  // ── Hero parallax ──
+  gsap.to('#hero-bg', {
+    yPercent: 18,
+    ease: 'none',
+    scrollTrigger: { trigger: '#hero', start: 'top top', end: 'bottom top', scrub: true }
+  });
+
+  // ── Hero entrance animations ──
+  const heroTl = gsap.timeline({ delay: 0.25 });
+  heroTl
+    .to('.hero-label',           { opacity: 1, duration: 0.6, ease: 'power2.out' })
+    .to('.hero-title .line',     { opacity: 1, y: 0, duration: 0.85, ease: 'power3.out', stagger: 0.14 }, '-=0.2')
+    .to('.hero-sub',             { opacity: 1, duration: 0.6, ease: 'power2.out' }, '-=0.35')
+    .to('.hero-cta',             { opacity: 1, duration: 0.55, ease: 'power2.out' }, '-=0.3')
+    .to('.hero-scroll',          { opacity: 1, duration: 0.5, ease: 'power2.out' }, '-=0.2');
+
+  // ── Scroll animations ──
+
+  // fade-up
+  gsap.utils.toArray('[data-anim="fade-up"]').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, y: 42 },
+      { opacity: 1, y: 0, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 87%', toggleActions: 'play none none none' } }
+    );
+  });
+
+  // slide-left
+  gsap.utils.toArray('[data-anim="slide-left"]').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, x: -75 },
+      { opacity: 1, x: 0, duration: 0.9, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 87%', toggleActions: 'play none none none' } }
+    );
+  });
+
+  // slide-right
+  gsap.utils.toArray('[data-anim="slide-right"]').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, x: 75 },
+      { opacity: 1, x: 0, duration: 0.95, ease: 'power3.out',
+        scrollTrigger: { trigger: el, start: 'top 82%', toggleActions: 'play none none none' } }
+    );
+  });
+
+  // scale-up
+  gsap.utils.toArray('[data-anim="scale-up"]').forEach(el => {
+    gsap.fromTo(el,
+      { opacity: 0, scale: 0.86 },
+      { opacity: 1, scale: 1, duration: 1.0, ease: 'power2.out',
+        scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none none' } }
+    );
+  });
+
+  // stagger groups — spécialités
+  const specCards = gsap.utils.toArray('[data-anim-group="spec"]');
+  if (specCards.length) {
+    gsap.fromTo(specCards,
+      { opacity: 0, y: 65 },
+      { opacity: 1, y: 0, duration: 0.85, ease: 'power3.out', stagger: 0.11,
+        scrollTrigger: { trigger: '.spec-grid', start: 'top 82%', toggleActions: 'play none none none' } }
+    );
+  }
+
+  // stagger groups — stats
+  const statItems = gsap.utils.toArray('[data-anim-group="stats"]');
+  if (statItems.length) {
+    gsap.fromTo(statItems,
+      { opacity: 0, scale: 0.82 },
+      { opacity: 1, scale: 1, duration: 0.9, ease: 'power2.out', stagger: 0.1,
+        scrollTrigger: { trigger: '.stats-grid', start: 'top 82%', toggleActions: 'play none none none' } }
+    );
+  }
+
+  // stagger groups — carte
+  const carteItems = gsap.utils.toArray('[data-anim-group="carte"]');
+  if (carteItems.length) {
+    gsap.fromTo(carteItems,
+      { opacity: 0, y: 50 },
+      { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out', stagger: 0.1,
+        scrollTrigger: { trigger: '.carte-grid', start: 'top 82%', toggleActions: 'play none none none' } }
+    );
+  }
+
+  // ── GSAP Counters ──
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target    = parseFloat(el.dataset.count);
+    const isDecimal = el.dataset.decimal === 'true';
+    const counter   = { val: 0 };
+
+    ScrollTrigger.create({
+      trigger: el,
+      start: 'top 80%',
+      once: true,
+      onEnter: () => {
+        gsap.to(counter, {
+          val: target,
+          duration: 2.2,
+          ease: 'power2.out',
+          onUpdate() {
+            el.textContent = isDecimal
+              ? counter.val.toFixed(1)
+              : Math.round(counter.val);
+          }
+        });
+      }
+    });
+  });
+
+  // ── CTA Bar — apparaît après le hero ──
+  const ctaBar = document.getElementById('cta-bar');
+  ScrollTrigger.create({
+    trigger: '#specialites',
+    start: 'top 70%',
+    onEnter:     () => ctaBar.classList.add('visible'),
+    onLeaveBack: () => ctaBar.classList.remove('visible')
+  });
+
+  // ── Lightbox ──
+  function openLightbox(src, label) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox-img').alt = label || '';
+    document.getElementById('lightbox').classList.add('open');
+    lenis.stop();
+  }
+
+  function closeLightbox(e) {
+    if (e && e.target !== document.getElementById('lightbox') &&
+        !e.target.classList.contains('lb-close')) return;
+    document.getElementById('lightbox').classList.remove('open');
+    document.getElementById('lightbox-img').src = '';
+    lenis.start();
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      document.getElementById('lightbox').classList.remove('open');
+      document.getElementById('lightbox-img').src = '';
+      lenis.start();
+      closeCart();
+    }
+  });
+
+  // ── #commander section label update ──
+  document.querySelector('#trouver .s-label .s-label-num') &&
+    (document.querySelector('#trouver .s-label .s-label-num').textContent = '008');
+
+  // ============================================================
+  //  ORDERING SYSTEM
+  // ============================================================
+
+  const PIZZA_IMG  = 'pizz-snack-bowl-assets/media/images/pizza/pizza-bacon-01.jpg';
+  const PIZZA2_IMG = 'pizz-snack-bowl-assets/media/images/pizza/pizza-fleurie-fleurs-02.jpg';
+  const BURGER_IMG = 'pizz-snack-bowl-assets/media/images/burger/burger-chicken-reblochon-01.jpg';
+  const BURGER2_IMG= 'pizz-snack-bowl-assets/media/images/burger/burger-classique-double-02.jpg';
+  const BOWL_IMG   = 'pizz-snack-bowl-assets/media/images/bowl/bowl-poke-produits-locaux-01.jpg';
+
+  const PRODUCTS = [
+    // ── PIZZA ──
+    { id:'p1',  cat:'pizza',  name:'Margherita',        desc:'Base tomate, mozzarella di bufala, basilic frais',                  price:10.5, img: PIZZA2_IMG },
+    { id:'p2',  cat:'pizza',  name:'Reine',             desc:'Tomate, jambon fumé, champignons, mozzarella',                      price:12.5, img: PIZZA_IMG  },
+    { id:'p3',  cat:'pizza',  name:'Bacon',             desc:'Tomate, bacon croustillant, œuf, mozzarella',                       price:13.5, img: PIZZA_IMG  },
+    { id:'p4',  cat:'pizza',  name:'4 Fromages',        desc:'Crème, camembert, emmental, chèvre, noix',                          price:13.5, img: PIZZA2_IMG },
+    { id:'p5',  cat:'pizza',  name:'Cal-Membert',       desc:'Crème, camembert fondu, lardons, noix — le must !',                 price:14.0, img: PIZZA_IMG  },
+    { id:'p6',  cat:'pizza',  name:'Calzone',           desc:'Tomate, jambon, mozzarella, œuf coulant — artisanal',               price:13.0, img: PIZZA2_IMG },
+    // ── BURGER ──
+    { id:'b1',  cat:'burger', name:'Burger Classique',  desc:'Bœuf 180g, cheddar, salade, tomate, cornichons, sauce maison',      price:12.0, img: BURGER2_IMG },
+    { id:'b2',  cat:'burger', name:'Chicken Reblochon', desc:'Poulet crispy, reblochon fondant, bacon, sauce miel-moutarde',      price:13.5, img: BURGER_IMG  },
+    { id:'b3',  cat:'burger', name:'Double Stack',      desc:'Double steak, double cheddar, oignons caramélisés, sauce secrète',  price:15.0, img: BURGER2_IMG },
+    // ── TACOS ──
+    { id:'t1',  cat:'tacos',  name:'Tacos Classic',     desc:'Poulet, fromage fondu, frites, sauce algérienne',                   price:11.0, emoji:'🌮' },
+    { id:'t2',  cat:'tacos',  name:'Tacos XL',          desc:'Double viande, double fromage, frites, sauce de votre choix',       price:13.5, emoji:'🌮' },
+    { id:'t3',  cat:'tacos',  name:'Tacos Mixte',       desc:'Poulet + bœuf, légumes, fromage, sauce maison maison',              price:12.5, emoji:'🌮' },
+    // ── BOWL ──
+    { id:'bw1', cat:'bowl',   name:'Poké Saumon',       desc:'Saumon mariné, riz, avocat, edamame, sauce soja-gingembre',         price:14.0, img: BOWL_IMG },
+    { id:'bw2', cat:'bowl',   name:'Poké Local',        desc:'Poulet rôti, légumes locaux, riz, sauce maison de Maeva',           price:13.0, img: BOWL_IMG },
+    { id:'bw3', cat:'bowl',   name:'Poké Végé',         desc:'Tofu mariné, quinoa, légumes croquants, sauce sésame',              price:12.5, emoji:'🥗' },
+    // ── SNACK ──
+    { id:'s1',  cat:'snack',  name:'Panini',            desc:'Jambon, fromage fondu, tomates, herbes du maquis',                  price: 8.0, emoji:'🥖' },
+    { id:'s2',  cat:'snack',  name:'Frites Maison',     desc:'Pommes de terre fraîches, cuisson à la commande',                   price: 4.0, emoji:'🍟' },
+    { id:'s3',  cat:'snack',  name:'Menu Enfant',       desc:'Panini au choix + frites + boisson + dessert surprise',             price: 8.5, emoji:'🧒' },
+    { id:'s4',  cat:'snack',  name:'Nuggets x6',        desc:'Poulet tendre, sauce ketchup ou BBQ maison',                        price: 6.5, emoji:'🍗' },
+    // ── BOISSON ──
+    { id:'d1',  cat:'boisson',name:'Coca-Cola',         desc:'33cl · verre ou canette',                                           price: 3.0, emoji:'🥤' },
+    { id:'d2',  cat:'boisson',name:'Eau Plate',         desc:'50cl',                                                              price: 2.0, emoji:'💧' },
+    { id:'d3',  cat:'boisson',name:'Jus d\'Orange',    desc:'Pur jus · 25cl',                                                    price: 3.0, emoji:'🍊' },
+    { id:'d4',  cat:'boisson',name:'Ice Tea Pêche',     desc:'33cl · bien frais',                                                  price: 3.0, emoji:'🧊' },
+  ];
+
+  // cart state: { productId → qty }
+  const cart = {};
+
+  function switchTab(btn, cat) {
+    document.querySelectorAll('.cmd-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    renderProducts(cat);
+  }
+
+  function renderProducts(cat) {
+    const grid = document.getElementById('cmd-grid');
+    const items = PRODUCTS.filter(p => p.cat === cat);
+    grid.innerHTML = items.map(p => {
+      const qty = cart[p.id] || 0;
+      const visual = p.img
+        ? `<img src="${p.img}" alt="${p.name}" loading="lazy">`
+        : `<div class="prod-visual-gradient" style="background:${gradientFor(cat)}"><span>${p.emoji || '🍽️'}</span></div>`;
+
+      const footer = qty === 0
+        ? `<button class="prod-add-btn" onclick="addToCart('${p.id}')">+ Ajouter</button>`
+        : `<div class="prod-qty-ctrl">
+            <button class="prod-qty-btn" onclick="updateCardQty('${p.id}',-1)">−</button>
+            <div class="prod-qty-num">${qty}</div>
+            <button class="prod-qty-btn" onclick="updateCardQty('${p.id}',1)">+</button>
+           </div>`;
+
+      return `<div class="prod-card" id="card-${p.id}">
+        <div class="prod-visual">${visual}</div>
+        <div class="prod-body">
+          <div class="prod-name">${p.name}</div>
+          <div class="prod-desc">${p.desc}</div>
+          <div class="prod-footer">
+            <div class="prod-price">${p.price.toFixed(2).replace('.',',')} €</div>
+            <div id="ctrl-${p.id}">${footer}</div>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function gradientFor(cat) {
+    const map = {
+      tacos:   'linear-gradient(135deg,#7A1515,#C02020,#E8A020)',
+      snack:   'linear-gradient(135deg,#3a2600,#c47800)',
+      boisson: 'linear-gradient(135deg,#0a2a3a,#1a6090)',
+    };
+    return map[cat] || 'linear-gradient(135deg,#1A1A1A,#333)';
+  }
+
+  function addToCart(id) {
+    cart[id] = (cart[id] || 0) + 1;
+    refreshCtrl(id);
+    updateCart();
+    animateBadge();
+  }
+
+  function updateCardQty(id, delta) {
+    cart[id] = Math.max(0, (cart[id] || 0) + delta);
+    if (cart[id] === 0) delete cart[id];
+    refreshCtrl(id);
+    updateCart();
+  }
+
+  function refreshCtrl(id) {
+    const el = document.getElementById(`ctrl-${id}`);
+    if (!el) return;
+    const qty = cart[id] || 0;
+    el.innerHTML = qty === 0
+      ? `<button class="prod-add-btn" onclick="addToCart('${id}')">+ Ajouter</button>`
+      : `<div class="prod-qty-ctrl">
+          <button class="prod-qty-btn" onclick="updateCardQty('${id}',-1)">−</button>
+          <div class="prod-qty-num">${qty}</div>
+          <button class="prod-qty-btn" onclick="updateCardQty('${id}',1)">+</button>
+         </div>`;
+  }
+
+  function updateCart() {
+    const ids = Object.keys(cart);
+    const total = ids.reduce((sum, id) => {
+      const p = PRODUCTS.find(x => x.id === id);
+      return sum + (p ? p.price * cart[id] : 0);
+    }, 0);
+    const count = ids.reduce((sum, id) => sum + cart[id], 0);
+
+    // badge nav
+    const badge = document.getElementById('nav-cart-badge');
+    badge.textContent = count;
+    badge.classList.toggle('show', count > 0);
+
+    // pill sidebar
+    document.getElementById('cart-count-pill').textContent =
+      count === 0 ? '0 article' : `${count} article${count > 1 ? 's' : ''}`;
+
+    // empty vs items
+    document.getElementById('cart-empty').style.display = count === 0 ? 'flex' : 'none';
+    document.getElementById('cart-footer').style.display = count === 0 ? 'none' : 'block';
+
+    // items list
+    document.getElementById('cart-items-list').innerHTML = ids.map(id => {
+      const p  = PRODUCTS.find(x => x.id === id);
+      if (!p) return '';
+      const qty = cart[id];
+      const sub = (p.price * qty).toFixed(2).replace('.', ',');
+      return `<div class="cart-item">
+        <div class="cart-item-emoji">${p.emoji || '🍽️'}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${p.name}</div>
+          <div class="cart-item-unit">${p.price.toFixed(2).replace('.',',')} € / unité</div>
+        </div>
+        <div class="cart-item-right">
+          <div class="cart-item-subtotal">${sub} €</div>
+          <div class="cart-item-qty">
+            <button class="cart-item-qty-btn" onclick="updateCardQty('${id}',-1)">−</button>
+            <div class="cart-item-qty-num">${qty}</div>
+            <button class="cart-item-qty-btn" onclick="updateCardQty('${id}',1)">+</button>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // summary
+    document.getElementById('cart-summary').innerHTML = ids.map(id => {
+      const p = PRODUCTS.find(x => x.id === id);
+      if (!p) return '';
+      return `<div class="cart-items-summary-row">
+        <span>${p.name} × ${cart[id]}</span>
+        <span>${(p.price * cart[id]).toFixed(2).replace('.', ',')} €</span>
+      </div>`;
+    }).join('');
+
+    // total
+    document.getElementById('cart-total-val').textContent =
+      total.toFixed(2).replace('.', ',') + ' €';
+  }
+
+  function openCart() {
+    document.getElementById('cart-sidebar').classList.add('open');
+    document.getElementById('cart-overlay').classList.add('open');
+    lenis.stop();
+  }
+
+  function closeCart() {
+    document.getElementById('cart-sidebar').classList.remove('open');
+    document.getElementById('cart-overlay').classList.remove('open');
+    lenis.start();
+  }
+
+  function animateBadge() {
+    const badge = document.getElementById('nav-cart-badge');
+    badge.classList.remove('pop');
+    void badge.offsetWidth; // reflow
+    badge.classList.add('pop');
+    badge.addEventListener('animationend', () => badge.classList.remove('pop'), { once: true });
+  }
+
+  // Init — render pizza by default
+  renderProducts('pizza');
+
+  // Update cursor hover for new interactive elements
+  document.querySelectorAll('.prod-card, .nav-cart-btn, .cart-call-btn').forEach(el => {
+    el.addEventListener('mouseenter', () => dot.classList.add('grow'));
+    el.addEventListener('mouseleave', () => dot.classList.remove('grow'));
+  });
+
+</script>
+
+</body>
+</html>
