@@ -4124,12 +4124,32 @@
       <span class="cart-total-lbl">Total estimé</span>
       <span class="cart-total-val" id="cart-total-val">0,00 €</span>
     </div>
-    <p class="cart-disclaimer">Passez votre commande en ligne — récupération sur place.</p>
-    <a href="https://commande-pizzsnack.vercel.app/pizzsnackandbowl" target="_blank" class="cart-call-btn" style="text-decoration:none">
-      <span class="cart-call-label">🛒 Commander en ligne</span>
-      <span class="cart-call-number">Commande rapide</span>
-      <span class="cart-call-hint">Passez votre commande en ligne · Récupération sur place</span>
-    </a>
+    <!-- Formulaire de commande en ligne -->
+    <div id="checkout-form-wrap">
+      <div style="margin-bottom:0.8rem">
+        <label style="display:block;font-size:0.75rem;color:rgba(245,240,232,0.5);margin-bottom:0.3rem;text-transform:uppercase;letter-spacing:0.08em">Prénom / Nom *</label>
+        <input type="text" id="cmd-name" required placeholder="Votre prénom" style="width:100%;padding:0.7rem 0.9rem;background:rgba(245,240,232,0.06);border:1px solid rgba(245,240,232,0.1);border-radius:10px;color:var(--creme);font-size:0.9rem;outline:none" onfocus="this.style.borderColor='var(--or)'" onblur="this.style.borderColor='rgba(245,240,232,0.1)'">
+      </div>
+      <div style="margin-bottom:1rem">
+        <label style="display:block;font-size:0.75rem;color:rgba(245,240,232,0.5);margin-bottom:0.3rem;text-transform:uppercase;letter-spacing:0.08em">Téléphone</label>
+        <input type="tel" id="cmd-phone" placeholder="06 XX XX XX XX" style="width:100%;padding:0.7rem 0.9rem;background:rgba(245,240,232,0.06);border:1px solid rgba(245,240,232,0.1);border-radius:10px;color:var(--creme);font-size:0.9rem;outline:none" onfocus="this.style.borderColor='var(--or)'" onblur="this.style.borderColor='rgba(245,240,232,0.1)'">
+      </div>
+      <div id="cmd-error" style="display:none;background:rgba(220,50,50,0.15);border:1px solid rgba(220,50,50,0.3);color:#ff6b6b;padding:0.6rem 0.8rem;border-radius:8px;font-size:0.8rem;margin-bottom:0.8rem;text-align:center"></div>
+      <button onclick="submitOrder()" id="cmd-submit-btn" class="cart-call-btn" style="border:none;cursor:pointer;width:100%;text-align:center">
+        <span class="cart-call-label" id="cmd-submit-label">Valider ma commande</span>
+        <span class="cart-call-hint">Pas de paiement en ligne — règlement sur place</span>
+      </button>
+    </div>
+    <!-- Confirmation après commande -->
+    <div id="checkout-success" style="display:none;text-align:center;padding:1.5rem 0">
+      <div style="font-size:3rem;margin-bottom:0.8rem">✅</div>
+      <div style="font-size:1.1rem;font-weight:700;color:var(--creme);margin-bottom:0.4rem">Commande envoyée !</div>
+      <p style="font-size:0.85rem;color:rgba(245,240,232,0.6);margin-bottom:1rem">Votre commande a bien été transmise.<br>Préparez-vous à venir la récupérer.</p>
+      <div id="cmd-order-number" style="font-size:0.8rem;color:var(--or);margin-bottom:1rem"></div>
+      <button onclick="resetCheckout()" class="cart-call-btn" style="border:none;cursor:pointer;width:100%;text-align:center">
+        <span class="cart-call-label">Fermer</span>
+      </button>
+    </div>
   </div>
 </div>
 
@@ -4184,7 +4204,7 @@
 
 <!-- CTA Bar persistante -->
 <div class="cta-bar" id="cta-bar" data-persist="true">
-  <a href="https://commande-pizzsnack.vercel.app/pizzsnackandbowl" target="_blank" class="cta-bar-txt" style="text-decoration:none;color:inherit">Commander en ligne</a>
+  <a href="#commander" class="cta-bar-txt" style="text-decoration:none;color:inherit">Commander en ligne</a>
   <div class="cta-bar-sep"></div>
   <a href="tel:+33468413130" class="cta-bar-phone">04 68 41 31 30</a>
   <div class="cta-bar-sep"></div>
@@ -4558,7 +4578,7 @@
   ];
 
   // cart state: { productId → qty }
-  const cart = {};
+  let cart = {};
 
   // Compteur pour les items builder (tacos / bowl personnalisés)
   let builderItemCounter = 0;
@@ -5459,6 +5479,99 @@
   }
 
   function switchTabByName(cat) { scrollToCat(cat); }
+
+  const ORDER_API = 'https://commande-pizzsnack.vercel.app/api/orders';
+  const RESTAURANT_ID = 'bc8c532f-1800-45d5-9fcc-1267671faa4d';
+
+  async function submitOrder() {
+    const name = document.getElementById('cmd-name').value.trim();
+    const phone = document.getElementById('cmd-phone').value.trim();
+    const errEl = document.getElementById('cmd-error');
+    const btn = document.getElementById('cmd-submit-btn');
+    const label = document.getElementById('cmd-submit-label');
+
+    errEl.style.display = 'none';
+
+    if (!name) {
+      errEl.textContent = 'Veuillez entrer votre prénom ou nom.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const ids = Object.keys(cart);
+    if (ids.length === 0) return;
+
+    const totalAmount = ids.reduce((sum, id) => {
+      const p = findProduct(id);
+      return sum + (p ? p.price * cart[id] : 0);
+    }, 0);
+
+    const items = ids.map(id => {
+      const p = findProduct(id);
+      if (!p) return null;
+      return {
+        product_id: null,
+        product_name: p.name,
+        product_price: p.price,
+        quantity: cart[id],
+        notes: null
+      };
+    }).filter(Boolean);
+
+    btn.disabled = true;
+    label.textContent = 'Envoi en cours...';
+
+    try {
+      const res = await fetch(ORDER_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          restaurant_id: RESTAURANT_ID,
+          delivery_mode: 'click_collect',
+          table_number: null,
+          customer_name: name,
+          customer_phone: phone || null,
+          customer_address: null,
+          notes: null,
+          total_amount: totalAmount,
+          items: items
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        errEl.textContent = data.error || 'Erreur lors de la commande.';
+        errEl.style.display = 'block';
+        btn.disabled = false;
+        label.textContent = 'Valider ma commande';
+        return;
+      }
+
+      // Succès
+      cart = {};
+      Object.keys(cart).forEach(id => refreshCtrl(id));
+      updateCart();
+      document.getElementById('checkout-form-wrap').style.display = 'none';
+      document.getElementById('cart-items-list').innerHTML = '';
+      document.getElementById('checkout-success').style.display = 'block';
+    } catch (e) {
+      errEl.textContent = 'Erreur de connexion. Vérifiez votre connexion internet.';
+      errEl.style.display = 'block';
+      btn.disabled = false;
+      label.textContent = 'Valider ma commande';
+    }
+  }
+
+  function resetCheckout() {
+    document.getElementById('checkout-success').style.display = 'none';
+    document.getElementById('checkout-form-wrap').style.display = 'block';
+    document.getElementById('cmd-name').value = '';
+    document.getElementById('cmd-phone').value = '';
+    document.getElementById('cmd-submit-btn').disabled = false;
+    document.getElementById('cmd-submit-label').textContent = 'Valider ma commande';
+    closeCart();
+  }
 
   function openCart() {
     document.getElementById('cart-sidebar').classList.add('open');
